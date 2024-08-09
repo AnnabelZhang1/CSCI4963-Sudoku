@@ -1,9 +1,20 @@
+
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+
 public class Sudoku {
     private int[][] board;
+    private static final int BOARD_SIZE = 9;
+    private static final int SUBGRID_SIZE = 3;
+    private static final int EMPTY_CELL = 0;
 
     public Sudoku() {
-        board = new int[9][9];
-        // Initialize the board with a starting puzzle or generate a new one
+        board = new int[BOARD_SIZE][BOARD_SIZE];
+        clearBoard();
+        generatePuzzle();
     }
 
     public int[][] getBoard() {
@@ -11,25 +22,16 @@ public class Sudoku {
     }
 
     public boolean isValidMove(int row, int col, int num) {
-        // Check row
-        for (int x = 0; x < 9; x++) {
-            if (board[row][x] == num) {
+        for (int x = 0; x < BOARD_SIZE; x++) {
+            if (board[row][x] == num || board[x][col] == num) {
                 return false;
             }
         }
 
-        // Check column
-        for (int x = 0; x < 9; x++) {
-            if (board[x][col] == num) {
-                return false;
-            }
-        }
-
-        // Check 3x3 subgrid
-        int startRow = row - row % 3;
-        int startCol = col - col % 3;
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
+        int startRow = row - row % SUBGRID_SIZE;
+        int startCol = col - col % SUBGRID_SIZE;
+        for (int i = 0; i < SUBGRID_SIZE; i++) {
+            for (int j = 0; j < SUBGRID_SIZE; j++) {
                 if (board[i + startRow][j + startCol] == num) {
                     return false;
                 }
@@ -40,17 +42,59 @@ public class Sudoku {
     }
 
     public boolean solve() {
-        // Implement a backtracking algorithm to solve the puzzle
-    	return true;
+        for (int row = 0; row < BOARD_SIZE; row++) {
+            for (int col = 0; col < BOARD_SIZE; col++) {
+                if (board[row][col] == EMPTY_CELL) {
+                    for (int num = 1; num <= BOARD_SIZE; num++) {
+                        if (isValidMove(row, col, num)) {
+                            board[row][col] = num;
+                            if (solve()) {
+                                return true;
+                            }
+                            board[row][col] = EMPTY_CELL;
+                        }
+                    }
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public void clearBoard() {
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
-                board[i][j] = 0;
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                board[i][j] = EMPTY_CELL;
             }
         }
     }
 
-    // Additional methods to generate puzzles, validate the board, etc.
+    public void generatePuzzle() {
+        Random random = new Random();
+        List<Integer> numbers = new ArrayList<>();
+        for (int i = 1; i <= BOARD_SIZE; i++) {
+            numbers.add(i);
+        }
+
+        for (int i = 0; i < BOARD_SIZE; i += SUBGRID_SIZE) {
+            Collections.shuffle(numbers, random);
+            for (int row = 0; row < SUBGRID_SIZE; row++) {
+                for (int col = 0; col < SUBGRID_SIZE; col++) {
+                    board[i + row][i + col] = numbers.get(row * SUBGRID_SIZE + col);
+                }
+            }
+        }
+
+        solve();
+
+        int cellsToRemove = BOARD_SIZE * BOARD_SIZE / 2;
+        while (cellsToRemove > 0) {
+            int row = random.nextInt(BOARD_SIZE);
+            int col = random.nextInt(BOARD_SIZE);
+            if (board[row][col] != EMPTY_CELL) {
+                board[row][col] = EMPTY_CELL;
+                cellsToRemove--;
+            }
+        }
+    }
 }
