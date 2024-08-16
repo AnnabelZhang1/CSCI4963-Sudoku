@@ -1,5 +1,3 @@
-
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,6 +19,12 @@ public class Sudoku {
         return board;
     }
 
+    public int[][] copyBoard(){
+    	int[][] copy = board;
+    	return copy;
+    }
+    
+    
     public boolean isValidMove(int row, int col, int num) {
         for (int x = 0; x < BOARD_SIZE; x++) {
             if (board[row][x] == num || board[x][col] == num) {

@@ -2,12 +2,20 @@
 
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+
+
+/*
+ * COLORS:
+ * #FFFFFF - black (border)
+ * #FBE451 - light yellow (highlighted row, column, and mini grid)
+ * #E2CA2D - dark yellow (highlighted editable cell)
+ * #E8A420 - light orange (unhighlighted original cell)
+ * #B2790B - dark orange (highlighted original cell)
+ */
 
 public class SudokuController {
     private Sudoku model;
@@ -20,7 +28,9 @@ public class SudokuController {
     }
 
     private void initialize() {
+    	
         view.updateBoard(model.getBoard());
+        int[][] original = model.copyBoard();
 
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
@@ -82,8 +92,8 @@ public class SudokuController {
                 				 view.getCells()[i][j].setStyle("-fx-background-color: #FBE451; -fx-border-color: black; -fx-border-width: 1");
                 			 }
                 		 }
-             		 
                 		 
+                  	// Setting borders for highlighted cells
                 		 for (int i = 0; i < 9; i++) {
                 			 
                 			 if ((r - 2) % 3 == 0) {
@@ -109,14 +119,37 @@ public class SudokuController {
 
                    			 }
                 		 }
-                		 cell.setStyle("-fx-background-color: #E2CA2D; -fx-border-color: black; -fx-border-width: 1");
+                		 
+                		// Colors all original cells orange
+                   		 for (int i = 0; i < 9; i++) {
+                   			 for (int j = 0; j < 9; j++) {
+    	           				 // Checks if it's an original cell
+    	               			 if ((original[i][j] != 0) && (model.getBoard()[i][j] == original[i][j])) {
+    	           				 	 view.getCells()[i][j].setStyle("-fx-background-color: #E8A420; -fx-border-color: black; -fx-border-width: 1 ");
+    	           				 }
+                   			}
+                   		}
+                		 
+                		// Colors all highlighted original cells dark orange
+      	               	if ((original[r][c] != 0) && (model.getBoard()[r][c] == original[r][c])) {
+      	               		cell.setStyle("-fx-background-color: #B2790B; -fx-border-color: black; -fx-border-width: 1 ");
+      	           		}
+      	               	else {
+      	               		cell.setStyle("-fx-background-color: #E2CA2D; -fx-border-color: black; -fx-border-width: 1");
+      	               	}
+      	               	
+      	            
+                		
+                		 
+//                		 cell.setStyle("-fx-background-color: #E2CA2D; -fx-border-color: black; -fx-border-width: 1");
                 	 }
                 });
                 
                 cell.addEventFilter(MouseEvent.MOUSE_EXITED, new EventHandler<MouseEvent>() {
                	 @Override
                     public void handle(MouseEvent event) {
-               	// 3x3 boards
+               		 
+               		 // 3x3 boards
             		 int maxRow = 0;
             		 int maxCol = 0;
             		 
@@ -146,6 +179,7 @@ public class SudokuController {
              		 		break;
             		 }
             		 
+            		 // Colors all cells white
             		 for (int i = maxRow; i <= maxRow + 2; i++) {
             			 for (int j = maxCol; j <= maxCol + 2; j++) {
             				 view.getCells()[i][j].setStyle("-fx-background-color: #FFFFFF; -fx-border-color: black; -fx-border-width: 1");
@@ -158,10 +192,21 @@ public class SudokuController {
                		 for (int i = 0; i < 9; i++) {
                			 view.getCells()[i][c].setStyle("-fx-background-color: #FFFFFF; -fx-border-color: black; -fx-border-width: 1");
                		 }
-               		 cell.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: black; -fx-border-width: 1");
+               		 
+               		 // Colors all original cells orange
+               		 for (int i = 0; i < 9; i++) {
+               			 for (int j = 0; j < 9; j++) {
+	           				 // Checks if it's an original cell
+	               			 if ((original[i][j] != 0) && (model.getBoard()[i][j] == original[i][j])) {
+	           				 	 view.getCells()[i][j].setStyle("-fx-background-color: #E8A420; -fx-border-color: black; -fx-border-width: 1 ");
+	           				 }
+               			}
+               		}
                	 }
                });
 
+                // Takes in the user inputted cell value and stores it in the board
+                // Makes sure it is an integer from 1-9
                 cell.setOnAction(e -> {
                 	
                     String text = cell.getText();
@@ -169,9 +214,6 @@ public class SudokuController {
                         int value = Integer.parseInt(text);
                         if (model.isValidMove(r, c, value)) {
                             model.getBoard()[r][c] = value;
-                            
-                            //cell.setStyle("-fx-background-color: #CCCCFF;");
-                            
                         } else {
                             cell.setText("");
                         }
@@ -200,20 +242,11 @@ public class SudokuController {
             view.updateBoard(model.getBoard());
         });
     }
-    /*
-    private Canvas createGrid(int width, int height) {
-    	Canvas grid = new Canvas(width, height);
-        GraphicsContext gc = grid.getGraphicsContext2D();
-        gc.setLineWidth(3);
-        gc.moveTo(155, 0);
-        gc.lineTo(155, height);
-        gc.stroke();
-        return grid;
-    }
-*/
+
     public void start(Stage primaryStage) {
 
         Scene scene = new Scene(view.getRoot(), 500, 550);
+//        scene.getStylesheets().add("style.css");
         primaryStage.setScene(scene);
         primaryStage.setTitle("Sudoku :: Team Snickerdoodle");
         primaryStage.show();
