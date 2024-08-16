@@ -7,19 +7,16 @@ public class SudokuApp extends Application {
     public void start(Stage primaryStage) {
         primaryStage.setTitle("CSCI4963 :: Sudoku");
 
-        // Creates and shows the home page first
+        // Create the home page
         HomePage homePage = new HomePage(primaryStage);
         primaryStage.setScene(homePage.getScene());
 
-        // Gives functionality to buttons
-        homePage.getSinglePlayerButton().setOnAction(e -> {
+        // Add functionality to the "Start New Game" button
+        homePage.getStartNewGameButton().setOnAction(e -> {
             startSudokuGame(primaryStage);
         });
 
-        homePage.getCompetitiveModeButton().setOnAction(e -> {
-            startSudokuGame(primaryStage);
-        });
-
+        // Add functionality to the "Quit" button
         homePage.getQuitButton().setOnAction(e -> {
             primaryStage.close();
         });
@@ -27,14 +24,13 @@ public class SudokuApp extends Application {
         primaryStage.show();
     }
 
-    // Shows the singleplayer game
+    // Method to start the Sudoku game
     private void startSudokuGame(Stage primaryStage) {
         Sudoku model = new Sudoku();
         SudokuViewer view = new SudokuViewer();
-        SudokuController controller = new SudokuController(model, view, primaryStage); // Pass the Stage object
-       
-        controller.start(primaryStage); // This switches the scene to the Sudoku game
-        view.updateBoard(model.getBoard()); // Apply styles to the board immediately after switching the scene
+        SudokuController controller = new SudokuController(model, view, primaryStage);
+
+        controller.start(primaryStage); // Switch to the Sudoku game scene
     }
 
     public static void main(String[] args) {

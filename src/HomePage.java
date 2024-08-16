@@ -13,35 +13,39 @@ public class HomePage {
     private Scene scene;
     private Text title;
     private Text subtitle;
-    private Button singlePlayerButton;
-    private Button competitiveModeButton;
+    private Button startNewGameButton;
     private Button quitButton;
 
     public HomePage(Stage primaryStage) {
-        root = new VBox(10);
-        root.setPadding(new Insets(20));
+        root = new VBox(20); // Increased spacing between elements for a cleaner look
+        root.setPadding(new Insets(30));
         root.setAlignment(Pos.CENTER);
+        root.setStyle("-fx-background-color: #2C3E50;"); // Set a modern dark background color
 
         title = new Text("Sudoku");
-        title.setStyle("-fx-font-size: 36px; -fx-font-weight: bold;");
+        title.setStyle("-fx-font-size: 48px; -fx-font-weight: bold; -fx-fill: #ECF0F1;"); // Larger font size and light color
+
+        subtitle = new Text("By Sophie Liu, Yuqing Peng, & Annabel Zhang");
+        subtitle.setStyle("-fx-font-size: 18px; -fx-font-weight: normal; -fx-fill: #BDC3C7;"); // Lighter color for subtitle
+
+        // Button Styles
+        String buttonStyle = "-fx-font-size: 18px; -fx-padding: 10px 20px; -fx-background-color: #3498DB; -fx-text-fill: white; -fx-background-radius: 5;";
+
+        startNewGameButton = new Button("Start New Game");
+        startNewGameButton.setStyle(buttonStyle);
+
+        quitButton = new Button("Quit");
+        quitButton.setStyle(buttonStyle + "-fx-background-color: #E74C3C;"); // Red color for quit button
 
         // Adds an empty block of space
         Region spacer1 = new Region();
-        spacer1.setMinHeight(5);
+        spacer1.setMinHeight(20);
 
-        subtitle = new Text("By Sophie Liu, Yuqing Peng, & Annabel Zhang");
-        subtitle.setStyle("-fx-font-size: 18px; -fx-font-weight: normal;");
-
-        // Adds an empty block of space
         Region spacer2 = new Region();
-        spacer2.setMinHeight(1);
-
-        singlePlayerButton = new Button("Singleplayer Mode");
-        competitiveModeButton = new Button("Competitive Mode");
-        quitButton = new Button("Quit");
+        spacer2.setMinHeight(20);
 
         // Ensure all components are initialized before adding them to the VBox
-        root.getChildren().addAll(title, subtitle, spacer1, spacer2, singlePlayerButton, competitiveModeButton, quitButton);
+        root.getChildren().addAll(title, subtitle, spacer1, startNewGameButton, spacer2, quitButton);
 
         scene = new Scene(root, 600, 400);
     }
@@ -50,12 +54,8 @@ public class HomePage {
         return scene;
     }
 
-    public Button getSinglePlayerButton() {
-        return singlePlayerButton;
-    }
-
-    public Button getCompetitiveModeButton() {
-        return competitiveModeButton;
+    public Button getStartNewGameButton() {
+        return startNewGameButton;
     }
 
     public Button getQuitButton() {
