@@ -31,8 +31,8 @@ public class SudokuApp extends Application {
     private void startSudokuGame(Stage primaryStage) {
         Sudoku model = new Sudoku();
         SudokuViewer view = new SudokuViewer();
-        SudokuController controller = new SudokuController(model, view);
-
+        SudokuController controller = new SudokuController(model, view, primaryStage); // Pass the Stage object
+       
         controller.start(primaryStage); // This switches the scene to the Sudoku game
         view.updateBoard(model.getBoard()); // Apply styles to the board immediately after switching the scene
     }

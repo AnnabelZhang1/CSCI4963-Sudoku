@@ -8,102 +8,94 @@ import javafx.stage.Stage;
 import java.util.Optional;
 
 public class SudokuController {
-    private Sudoku model;
-    private SudokuViewer view;
+	private Sudoku model;
+	private SudokuViewer view;
+	private Stage primaryStage;
 
-    public SudokuController(Sudoku model, SudokuViewer view) {
-        this.model = model;
-        this.view = view;
-        initialize();
-    }
+	public SudokuController(Sudoku model, SudokuViewer view, Stage primaryStage) {
+		this.model = model;
+		this.view = view;
+		this.primaryStage = primaryStage;
+		initialize();
+	}
 
-    private void initialize() {
-        view.updateBoard(model.getBoard());
+	private void initialize() {
+		view.updateBoard(model.getBoard());
+		view.startTimer(); // Start the timer when the game starts
 
-        // Start the timer when the game starts
-        view.startTimer();
+		view.getSolveButton().setOnAction(e -> showSolveConfirmation());
+		view.getClearButton().setOnAction(e -> view.clearUserInputs(model.getBoard()));
+		view.getGenerateButton().setOnAction(e -> generateNewPuzzle());
+		view.getCheckButton().setOnAction(e -> {
+			if (isBoardEmpty()) {
+				showNoInputAlert();
+			} else {
+				view.highlightCells(model.getSolution());
+				if (view.isGameWon()) {
+					showWinningPage();
+				}
+			}
+		});
+	}
 
-        for (int row = 0; row < 9; row++) {
-            for (int col = 0; col < 9; col++) {
-                TextField cell = view.getCells()[row][col];
-                cell.setStyle("-fx-border-color: black;");
-                final int r = row;
-                final int c = col;
+	public void start(Stage primaryStage) {
+		Scene scene = new Scene(view.getRoot(), 600, 700);
+		primaryStage.setScene(scene);
+		primaryStage.setTitle("Sudoku :: Team Snickerdoodle");
+		primaryStage.show();
+	}
 
-                cell.addEventFilter(javafx.scene.input.KeyEvent.KEY_TYPED, event -> {
-                    String character = event.getCharacter();
-                    if (!character.matches("[1-9]")) {
-                        event.consume(); // Ignore non-numeric input
-                    }
-                });
-            }
-        }
+	public Scene getScene() {
+		return primaryStage.getScene();
+	}
 
-        view.getSolveButton().setOnAction(e -> {
-            showSolveConfirmation();
-        });
+	public void generateNewPuzzle() {
+		model.clearBoard();
+		model.generatePuzzle();
+		view.updateBoard(model.getBoard());
+		view.startTimer(); // Restart the timer for the new puzzle
+	}
 
-        view.getClearButton().setOnAction(e -> {
-            view.clearUserInputs(model.getBoard());
-        });
+	private void showSolveConfirmation() {
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("Solve Puzzle");
+		alert.setHeaderText("Are you sure you want to solve the puzzle?");
+		alert.setContentText("Clicking 'Solve' will reveal the solution \n and you won't be able to continue.");
 
-        view.getGenerateButton().setOnAction(e -> {
-            model.clearBoard();
-            model.generatePuzzle();
-            view.updateBoard(model.getBoard());
-            view.startTimer();  // Restart the timer for a new game
-        });
+		Optional<ButtonType> result = alert.showAndWait();
+		if (result.isPresent() && result.get() == ButtonType.OK) {
+			if (model.solve()) {
+				view.updateBoard(model.getBoard());
+				view.stopTimer(); // Stop the timer when the puzzle is solved
+			} else {
+				System.out.println("Unsolvable puzzle.");
+			}
+		}
+	}
 
-        view.getCheckButton().setOnAction(e -> {
-            if (isBoardEmpty()) {
-                showNoInputAlert();
-            } else {
-                view.highlightCells(model.getSolution());
-            }
-        });
-    }
+	private void showNoInputAlert() {
+		Alert alert = new Alert(AlertType.WARNING);
+		alert.setTitle("No Input");
+		alert.setHeaderText("No input detected");
+		alert.setContentText("Please enter numbers in the puzzle before checking your solution.");
+		alert.showAndWait();
+	}
 
-    public void start(Stage primaryStage) {
-        Scene scene = new Scene(view.getRoot(), 600, 700);
-        primaryStage.setScene(scene);
-        primaryStage.setTitle("Sudoku :: Team Snickerdoodle");
-        primaryStage.show();
-    }
+	private boolean isBoardEmpty() {
+		for (int row = 0; row < 9; row++) {
+			for (int col = 0; col < 9; col++) {
+				TextField cell = view.getCells()[row][col];
+				if (!cell.getText().trim().isEmpty()) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 
-    private void showSolveConfirmation() {
-        Alert alert = new Alert(AlertType.CONFIRMATION);
-        alert.setTitle("Solve Puzzle");
-        alert.setHeaderText("Are you sure you want to solve the puzzle?");
-        alert.setContentText("Clicking 'Solve' will reveal the solution and you won't be able to continue.");
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            if (model.solve()) {
-                view.updateBoard(model.getBoard());
-                view.stopTimer();  // Stop the timer when the puzzle is solved
-            } else {
-                System.out.println("Unsolvable puzzle.");
-            }
-        }
-    }
-
-    private void showNoInputAlert() {
-        Alert alert = new Alert(AlertType.WARNING);
-        alert.setTitle("No Input");
-        alert.setHeaderText("No input detected");
-        alert.setContentText("Please enter numbers in the puzzle before checking your solution.");
-        alert.showAndWait();
-    }
-
-    private boolean isBoardEmpty() {
-        for (int row = 0; row < 9; row++) {
-            for (int col = 0; col < 9; col++) {
-                TextField cell = view.getCells()[row][col];
-                if (!cell.getText().trim().isEmpty()) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+	private void showWinningPage() {
+		view.stopTimer(); // Stop the timer since the user has won
+		WinningPage winningPage = new WinningPage(this); // Pass the controller to the WinningPage
+		winningPage.show(); // Show the winning window
+	}
 }

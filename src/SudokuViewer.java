@@ -34,11 +34,14 @@ public class SudokuViewer {
     private Button[] numberButtons = new Button[9];
     private int[] numberCount = new int[9]; // Tracks numbers for button grey-out
 
+    private boolean isGameWon;
+
     public SudokuViewer() {
 
         // UI Setup
         gridPane_board = new GridPane();
         cells = new TextField[9][9];
+        isGameWon = false;
 
         // Sets up board
         for (int row = 0; row < 9; row++) {
@@ -275,10 +278,15 @@ public class SudokuViewer {
         updateButtonState();
     }
 
+    public boolean isGameWon() {
+        return isGameWon;
+    }
     /**
      * Highlights incorrect and correct cells based on the provided solution.
      */
     public void highlightCells(int[][] board) {
+        isGameWon = true;  // Assume the user has won until proven otherwise
+
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
                 TextField current = cells[row][col];
@@ -288,25 +296,22 @@ public class SudokuViewer {
                         try {
                             int value = Integer.parseInt(text);
                             if (board[row][col] != value) {
-                                current.setStyle(
-                                        "-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: #FF6666; ");
-
+                                current.setStyle("-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: #FF6666; ");
+                                isGameWon = false;  // If any cell is wrong, the user hasn't won
                             } else {
-                                current.setStyle(
-                                        "-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: #66FF66; ");
+                                current.setStyle("-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: #66FF66; ");
                             }
                         } catch (NumberFormatException e) {
-                            // Handle the case where the user input is not a number, which should not happen
-                            current.setStyle(
-                                    "-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: #FF6666; ");
+                            current.setStyle("-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: #FF6666; ");
+                            isGameWon = false;  // If any input is not a number, the user hasn't won
                         }
                     } else {
                         current.setStyle("-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: white;");
+                        isGameWon = false;  // If any cell is empty, the user hasn't won
                     }
                 }
             }
         }
-
     }
 
 }

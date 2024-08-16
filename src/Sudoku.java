@@ -99,7 +99,7 @@ public class Sudoku {
 
         solve(); // Solve the board fully to generate the solution
         copyBoardToSolution(); // Copy the fully solved board to the solution
-
+        printSolution();
         int cellsToRemove = BOARD_SIZE * BOARD_SIZE / 2;
         while (cellsToRemove > 0) {
             int row = random.nextInt(BOARD_SIZE);
@@ -116,6 +116,16 @@ public class Sudoku {
             for (int j = 0; j < BOARD_SIZE; j++) {
                 solution[i][j] = board[i][j]; // Copy solved board to solution array
             }
+        }
+    }
+
+    public void printSolution() {
+        System.out.println("Correct Solution:");
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                System.out.print(solution[i][j] + " ");
+            }
+            System.out.println(); // New line after each row
         }
     }
 }
