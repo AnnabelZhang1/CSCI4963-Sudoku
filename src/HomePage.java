@@ -18,22 +18,21 @@ public class HomePage {
     private Button quitButton;
 
     public HomePage(Stage primaryStage) {
-    	
         root = new VBox(10);
         root.setPadding(new Insets(20));
         root.setAlignment(Pos.CENTER);
 
         title = new Text("Sudoku");
         title.setStyle("-fx-font-size: 36px; -fx-font-weight: bold;");
-        
+
         // Adds an empty block of space
         Region spacer1 = new Region();
         spacer1.setMinHeight(5);
 
         subtitle = new Text("By Sophie Liu, Yuqing Peng, & Annabel Zhang");
         subtitle.setStyle("-fx-font-size: 18px; -fx-font-weight: normal;");
-        
-     // Adds an empty block of space
+
+        // Adds an empty block of space
         Region spacer2 = new Region();
         spacer2.setMinHeight(1);
 
@@ -41,6 +40,7 @@ public class HomePage {
         competitiveModeButton = new Button("Competitive Mode");
         quitButton = new Button("Quit");
 
+        // Ensure all components are initialized before adding them to the VBox
         root.getChildren().addAll(title, subtitle, spacer1, spacer2, singlePlayerButton, competitiveModeButton, quitButton);
 
         scene = new Scene(root, 600, 400);

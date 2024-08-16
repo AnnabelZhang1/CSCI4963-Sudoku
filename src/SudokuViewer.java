@@ -1,32 +1,43 @@
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+
+import javafx.util.Duration;
+
 import javafx.geometry.Insets;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Label;
 
 public class SudokuViewer {
-    
+
     private VBox root;
     private GridPane gridPane_board;
-    private GridPane gridPane_buttons;
+    private HBox buttonPanel;
     private TextField[][] cells;
     private TextField selectedCell;
-    
+    private Label timerLabel; // Label to display the timer
+    private Timeline timer;
+    private int secondsElapsed;
+
     // Function Buttons
     private Button solveButton;
     private Button clearButton;
     private Button generateButton;
-    
+    private Button checkButton;
+    private Label feedbackLabel;
+
     // Number Buttons
     private Button[] numberButtons = new Button[9];
-    private int[] numberCount = new int[9];	// Tracks numbers for button grey-out
+    private int[] numberCount = new int[9]; // Tracks numbers for button grey-out
 
     public SudokuViewer() {
-    	
-    	// UI Setup
+
+        // UI Setup
         gridPane_board = new GridPane();
-        gridPane_buttons = new GridPane();
         cells = new TextField[9][9];
 
         // Sets up board
@@ -34,9 +45,17 @@ public class SudokuViewer {
             for (int col = 0; col < 9; col++) {
                 cells[row][col] = new TextField();
                 cells[row][col].setPrefSize(50, 50);
-                setCellBorder(row, col);
+
+                cells[row][col].setStyle("-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: white;"); // Set
+                                                                                                                      // larger
+                                                                                                                      // font
+                                                                                                                      // size
+                                                                                                                      // and
+                                                                                                                      // center
+                                                                                                                      // alignment
+
                 gridPane_board.add(cells[row][col], col, row);
-                 
+
                 // Selects cell with mouse click
                 final int r = row;
                 final int c = col;
@@ -49,7 +68,6 @@ public class SudokuViewer {
                 cells[row][col].textProperty().addListener((observable, oldValue, newValue) -> {
                     updateButtonState();
                 });
-                
             }
         }
 
@@ -57,26 +75,63 @@ public class SudokuViewer {
         solveButton = new Button("Solve");
         clearButton = new Button("Clear");
         generateButton = new Button("Generate");
-        
-        gridPane_buttons.setPadding(new Insets(5));
-        gridPane_buttons.setHgap(5);
-        gridPane_buttons.setVgap(5);
-        
+        checkButton = new Button("Check");
+
+        // Creates feedback label
+        feedbackLabel = new Label();
+        timerLabel = new Label("Time: 00:00");
+
         // Creates buttons from 1-9
         for (int i = 0; i < 9; i++) {
             int number = i + 1;
             Button button = new Button(String.valueOf(number));
             numberButtons[i] = button;
-            gridPane_buttons.add(button, i % 3, i / 3);
+            button.setPrefWidth(50);
             button.setOnAction(e -> addNumberToSelectedCell(number));
-            System.out.println("boop added");
         }
-        
-        HBox mainContent = new HBox(gridPane_board, gridPane_buttons);
-        mainContent.setSpacing(10);
-        
-        root = new VBox(mainContent, solveButton, clearButton, generateButton);
-        root.setSpacing(10);
+
+        // Organizing the button panel
+        buttonPanel = new HBox(5, solveButton, clearButton, generateButton, checkButton);
+        buttonPanel.setPadding(new Insets(10));
+        buttonPanel.setSpacing(10);
+
+        HBox mainContent = new HBox(gridPane_board, new VBox(10, numberButtons));
+        mainContent.setSpacing(20);
+
+        root = new VBox(20, timerLabel, mainContent, buttonPanel, feedbackLabel);
+        root.setPadding(new Insets(20));
+
+        // Setup the timer
+        setupTimer();
+    }
+
+    /**
+     * Sets up the timer using Timeline.
+     */
+    private void setupTimer() {
+        secondsElapsed = 0;
+        timer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            secondsElapsed++;
+            int minutes = secondsElapsed / 60;
+            int seconds = secondsElapsed % 60;
+            timerLabel.setText(String.format("Time: %02d:%02d", minutes, seconds));
+        }));
+        timer.setCycleCount(Timeline.INDEFINITE); // Run indefinitely
+    }
+
+    /**
+     * Starts the timer.
+     */
+    public void startTimer() {
+        secondsElapsed = 0;
+        timer.playFromStart();
+    }
+
+    /**
+     * Stops the timer.
+     */
+    public void stopTimer() {
+        timer.stop();
     }
 
     /**
@@ -117,7 +172,14 @@ public class SudokuViewer {
     public Button getGenerateButton() {
         return generateButton;
     }
-    
+
+    /**
+     * @return The button for Check
+     */
+    public Button getCheckButton() {
+        return checkButton;
+    }
+
     /**
      * Adds a number to the selected cell based on the button clicked
      * 
@@ -137,8 +199,6 @@ public class SudokuViewer {
      * Checks to grey out buttons when necessary
      */
     private void updateButtonState() {
-    	//System.out.println("updating button state");
-    	
         // Reset number counts
         for (int i = 0; i < 9; i++) {
             numberCount[i] = 0;
@@ -160,74 +220,93 @@ public class SudokuViewer {
             if (numberCount[i] >= 9) {
                 numberButtons[i].setDisable(true);
                 numberButtons[i].setStyle("-fx-background-color: grey;");
-            }
-            else {
+            } else {
                 numberButtons[i].setDisable(false);
                 numberButtons[i].setStyle("");
             }
         }
     }
-    
-    
+
     /**
-     * Updates the board with a new blank Sudoku board
+     * Updates the board with a new Sudoku board
      * 
      * @param board The generated Sudoku board
      */
     public void updateBoard(int[][] board) {
-    	
+
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
-            	
-            	TextField current = cells[row][col];
-            	
-            	// Resetting board editability
-            	current.setEditable(true);
-//            	current.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: black; -fx-border-width: 1");
-            	
-            	// Inputting nothing if empty grid cell
-            	if (board[row][col] == 0) {
-            		current.setText("");
-            	}
-            	// Inputting in all starting numbers
-            	else {
-            		current.setText(Integer.toString(board[row][col]));
-            		current.setEditable(false);
-//            		current.setStyle("-fx-background-color: #D89412");
-            	}
+
+                TextField current = cells[row][col];
+
+                // Resetting board editability and style
+                current.setEditable(true);
+                current.setStyle("-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: white;");
+
+                // Inputting nothing if empty grid cell
+                if (board[row][col] == 0) {
+                    current.setText("");
+                }
+                // Inputting in all starting numbers
+                else {
+                    current.setText(Integer.toString(board[row][col]));
+                    current.setEditable(false);
+                    current.setStyle("-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: lightgray;");
+
+                }
             }
         }
         updateButtonState();
     }
 
     /**
-     * Styles the cell borders
-     * 
-     * @param row The row of the cell
-     * @param col The column of the cell
+     * Clears only the user inputs, leaving the original puzzle intact.
      */
-    private void setCellBorder(int row, int col) {
-        String style = "";
-        if (row == 2 || row == 5) {
-            style += "-fx-border-width: 0 0 2px 0; -fx-border-color: black; -fx-border-style: solid;";
+    public void clearUserInputs(int[][] original) {
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                TextField current = cells[row][col];
+                if (current.isEditable()) {
+                    current.setText("");
+                    current.setStyle("-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: white;");
+                }
+            }
         }
-        if (col == 2 || col == 5) {
-            style += "-fx-border-width: 0 2px 0 0; -fx-border-color: black; -fx-border-style: solid;";
+        updateButtonState();
+    }
+
+    /**
+     * Highlights incorrect and correct cells based on the provided solution.
+     */
+    public void highlightCells(int[][] board) {
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                TextField current = cells[row][col];
+                if (current.isEditable()) { // Ensure we're only checking editable cells
+                    String text = current.getText().trim(); // Trim any whitespace
+                    if (!text.isEmpty()) { // Check if the cell is not empty
+                        try {
+                            int value = Integer.parseInt(text);
+                            if (board[row][col] != value) {
+                                current.setStyle(
+                                        "-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: #FF6666; ");
+
+                            } else {
+                                current.setStyle(
+                                        "-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: #66FF66; ");
+                            }
+                        } catch (NumberFormatException e) {
+                            // Handle the case where the user input is not a number, which should not happen
+                            current.setStyle(
+                                    "-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: #FF6666; ");
+                        }
+                    } else {
+                        current.setStyle("-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: white;");
+                    }
+                }
+            }
         }
-        if (row == 2 && col == 5) {
-            style += "-fx-border-width: 0 2px 2px 0; -fx-border-color: black; -fx-border-style: solid;";
-        }
-        if (row == 5 && col == 5) {
-            style += "-fx-border-width: 0 2px 2px 0; -fx-border-color: black; -fx-border-style: solid;";
-        }
-        if (row == 2 && col == 2) {
-            style += "-fx-border-width: 0 2px 2px 0; -fx-border-color: black; -fx-border-style: solid;";
-        }
-        if (row == 5 && col == 2) {
-            style += "-fx-border-width: 0 2px 2px 0; -fx-border-color: black; -fx-border-style: solid;";
-        }
-       
-        cells[row][col].setStyle(style);
+
     }
 
 }

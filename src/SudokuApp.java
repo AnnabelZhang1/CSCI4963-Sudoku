@@ -2,10 +2,9 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 
 public class SudokuApp extends Application {
-    
+
     @Override
     public void start(Stage primaryStage) {
-    	
         primaryStage.setTitle("CSCI4963 :: Sudoku");
 
         // Creates and shows the home page first
@@ -35,6 +34,7 @@ public class SudokuApp extends Application {
         SudokuController controller = new SudokuController(model, view);
 
         controller.start(primaryStage); // This switches the scene to the Sudoku game
+        view.updateBoard(model.getBoard()); // Apply styles to the board immediately after switching the scene
     }
 
     public static void main(String[] args) {

@@ -1,21 +1,11 @@
-
-
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
-
-/*
- * COLORS:
- * #FFFFFF - black (border)
- * #FBE451 - light yellow (highlighted row, column, and mini grid)
- * #E2CA2D - dark yellow (highlighted editable cell)
- * #E8A420 - light orange (unhighlighted original cell)
- * #B2790B - dark orange (highlighted original cell)
- */
+import java.util.Optional;
 
 public class SudokuController {
     private Sudoku model;
@@ -28,227 +18,92 @@ public class SudokuController {
     }
 
     private void initialize() {
-    	
         view.updateBoard(model.getBoard());
-        int[][] original = model.copyBoard();
+
+        // Start the timer when the game starts
+        view.startTimer();
 
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
                 TextField cell = view.getCells()[row][col];
                 cell.setStyle("-fx-border-color: black;");
-                //cell.setStyle("-fx-background-color: #CCCCFF;");
                 final int r = row;
                 final int c = col;
 
-                cell.addEventFilter(KeyEvent.KEY_TYPED, new EventHandler<KeyEvent>() {
-                    @Override
-                    public void handle(KeyEvent event) {
-                        String character = event.getCharacter();
-                        if (!character.matches("[1-9]")) {
-                            event.consume(); // Ignore non-numeric input
-                            return;
-
-                        }
-                        
-                    }
-                });
-                
-                cell.addEventFilter(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
-                	 @Override
-                     public void handle(MouseEvent event) {
-                		 
-                		 // 3x3 boards
-                		 int maxRow = 0;
-                		 int maxCol = 0;
-                		 
-                		 switch (r) {
-                		 	case 3:
-                		 	case 4:
-                		 	case 5:
-                		 		maxRow = 3;
-                		 		break;
-                		 	case 6:
-                		 	case 7:
-                		 	case 8:
-                		 		maxRow = 6;
-                		 		break;
-                		 }
-                		 
-                		 switch (c) {
-	             		 	case 3:
-	             		 	case 4:
-	             		 	case 5:
-	             		 		maxCol = 3;
-	             		 		break;
-	             		 	case 6:
-	             		 	case 7:
-	             		 	case 8:
-	             		 		maxCol = 6;
-	             		 		break;
-                		 }
-                		 
-                		 for (int i = maxRow; i <= maxRow + 2; i++) {
-                			 for (int j = maxCol; j <= maxCol + 2; j++) {
-                				 view.getCells()[i][j].setStyle("-fx-background-color: #FBE451; -fx-border-color: black; -fx-border-width: 1");
-                			 }
-                		 }
-                		 
-                  	// Setting borders for highlighted cells
-                		 for (int i = 0; i < 9; i++) {
-                			 
-                			 if ((r - 2) % 3 == 0) {
-                				 view.getCells()[r][i].setStyle("-fx-background-color: #FBE451; -fx-border-color: black; -fx-border-width: 1 1 4 1");
-                			 }
-                			 else if (r % 3 == 0) {
-                				 view.getCells()[r][i].setStyle("-fx-background-color: #FBE451; -fx-border-color: black; -fx-border-width: 4 1 1 1");
-                			 }
-                			 else {
-                				 view.getCells()[r][i].setStyle("-fx-background-color: #FBE451; -fx-border-color: black; -fx-border-width: 1");
-                			 }
-                		 }
-                		 
-                		 for (int i = 0; i < 9; i++) {
-                   			 if ((c-2) % 3 == 0) {
-                   				 view.getCells()[i][c].setStyle("-fx-background-color: #FBE451; -fx-border-color: black; -fx-border-width: 1 4 1 1");
-                   			 }
-                   			 else if (c % 3 == 0) {
-                   				 view.getCells()[i][c].setStyle("-fx-background-color: #FBE451; -fx-border-color: black; -fx-border-width: 1 1 1 4");
-                   			 }
-                   			 else {
-                    			 view.getCells()[i][c].setStyle("-fx-background-color: #FBE451; -fx-border-color: black; -fx-border-width: 1");
-
-                   			 }
-                		 }
-                		 
-                		// Colors all original cells orange
-                   		 for (int i = 0; i < 9; i++) {
-                   			 for (int j = 0; j < 9; j++) {
-    	           				 // Checks if it's an original cell
-    	               			 if ((original[i][j] != 0) && (model.getBoard()[i][j] == original[i][j])) {
-    	           				 	 view.getCells()[i][j].setStyle("-fx-background-color: #E8A420; -fx-border-color: black; -fx-border-width: 1 ");
-    	           				 }
-                   			}
-                   		}
-                		 
-                		// Colors all highlighted original cells dark orange
-      	               	if ((original[r][c] != 0) && (model.getBoard()[r][c] == original[r][c])) {
-      	               		cell.setStyle("-fx-background-color: #B2790B; -fx-border-color: black; -fx-border-width: 1 ");
-      	           		}
-      	               	else {
-      	               		cell.setStyle("-fx-background-color: #E2CA2D; -fx-border-color: black; -fx-border-width: 1");
-      	               	}
-      	               	
-      	            
-                		
-                		 
-//                		 cell.setStyle("-fx-background-color: #E2CA2D; -fx-border-color: black; -fx-border-width: 1");
-                	 }
-                });
-                
-                cell.addEventFilter(MouseEvent.MOUSE_EXITED, new EventHandler<MouseEvent>() {
-               	 @Override
-                    public void handle(MouseEvent event) {
-               		 
-               		 // 3x3 boards
-            		 int maxRow = 0;
-            		 int maxCol = 0;
-            		 
-            		 switch (r) {
-            		 	case 3:
-            		 	case 4:
-            		 	case 5:
-            		 		maxRow = 3;
-            		 		break;
-            		 	case 6:
-            		 	case 7:
-            		 	case 8:
-            		 		maxRow = 6;
-            		 		break;
-            		 }
-            		 
-            		 switch (c) {
-             		 	case 3:
-             		 	case 4:
-             		 	case 5:
-             		 		maxCol = 3;
-             		 		break;
-             		 	case 6:
-             		 	case 7:
-             		 	case 8:
-             		 		maxCol = 6;
-             		 		break;
-            		 }
-            		 
-            		 // Colors all cells white
-            		 for (int i = maxRow; i <= maxRow + 2; i++) {
-            			 for (int j = maxCol; j <= maxCol + 2; j++) {
-            				 view.getCells()[i][j].setStyle("-fx-background-color: #FFFFFF; -fx-border-color: black; -fx-border-width: 1");
-            			 }
-            		 }
-               		 for (int i = 0; i < 9; i++) {
-               			 view.getCells()[r][i].setStyle("-fx-background-color: #FFFFFF; -fx-border-color: black; -fx-border-width: 1");
-      
-               		 }
-               		 for (int i = 0; i < 9; i++) {
-               			 view.getCells()[i][c].setStyle("-fx-background-color: #FFFFFF; -fx-border-color: black; -fx-border-width: 1");
-               		 }
-               		 
-               		 // Colors all original cells orange
-               		 for (int i = 0; i < 9; i++) {
-               			 for (int j = 0; j < 9; j++) {
-	           				 // Checks if it's an original cell
-	               			 if ((original[i][j] != 0) && (model.getBoard()[i][j] == original[i][j])) {
-	           				 	 view.getCells()[i][j].setStyle("-fx-background-color: #E8A420; -fx-border-color: black; -fx-border-width: 1 ");
-	           				 }
-               			}
-               		}
-               	 }
-               });
-
-                // Takes in the user inputted cell value and stores it in the board
-                // Makes sure it is an integer from 1-9
-                cell.setOnAction(e -> {
-                	
-                    String text = cell.getText();
-                    if (text.matches("[1-9]")) {
-                        int value = Integer.parseInt(text);
-                        if (model.isValidMove(r, c, value)) {
-                            model.getBoard()[r][c] = value;
-                        } else {
-                            cell.setText("");
-                        }
-                        
+                cell.addEventFilter(javafx.scene.input.KeyEvent.KEY_TYPED, event -> {
+                    String character = event.getCharacter();
+                    if (!character.matches("[1-9]")) {
+                        event.consume(); // Ignore non-numeric input
                     }
                 });
             }
         }
 
         view.getSolveButton().setOnAction(e -> {
-            if (model.solve()) {
-                view.updateBoard(model.getBoard());
-            } else {
-                System.out.println("Unsolvable puzzle.");
-            }
+            showSolveConfirmation();
         });
 
         view.getClearButton().setOnAction(e -> {
-            model.clearBoard();
-            view.updateBoard(model.getBoard());
+            view.clearUserInputs(model.getBoard());
         });
 
         view.getGenerateButton().setOnAction(e -> {
             model.clearBoard();
             model.generatePuzzle();
             view.updateBoard(model.getBoard());
+            view.startTimer();  // Restart the timer for a new game
+        });
+
+        view.getCheckButton().setOnAction(e -> {
+            if (isBoardEmpty()) {
+                showNoInputAlert();
+            } else {
+                view.highlightCells(model.getSolution());
+            }
         });
     }
 
     public void start(Stage primaryStage) {
-
-        Scene scene = new Scene(view.getRoot(), 500, 550);
-//        scene.getStylesheets().add("style.css");
+        Scene scene = new Scene(view.getRoot(), 600, 700);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Sudoku :: Team Snickerdoodle");
         primaryStage.show();
+    }
+
+    private void showSolveConfirmation() {
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("Solve Puzzle");
+        alert.setHeaderText("Are you sure you want to solve the puzzle?");
+        alert.setContentText("Clicking 'Solve' will reveal the solution and you won't be able to continue.");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            if (model.solve()) {
+                view.updateBoard(model.getBoard());
+                view.stopTimer();  // Stop the timer when the puzzle is solved
+            } else {
+                System.out.println("Unsolvable puzzle.");
+            }
+        }
+    }
+
+    private void showNoInputAlert() {
+        Alert alert = new Alert(AlertType.WARNING);
+        alert.setTitle("No Input");
+        alert.setHeaderText("No input detected");
+        alert.setContentText("Please enter numbers in the puzzle before checking your solution.");
+        alert.showAndWait();
+    }
+
+    private boolean isBoardEmpty() {
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                TextField cell = view.getCells()[row][col];
+                if (!cell.getText().trim().isEmpty()) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

@@ -5,12 +5,14 @@ import java.util.Random;
 
 public class Sudoku {
     private int[][] board;
+    private int[][] solution; // Added this field to store the solution board
     private static final int BOARD_SIZE = 9;
     private static final int SUBGRID_SIZE = 3;
     private static final int EMPTY_CELL = 0;
 
     public Sudoku() {
         board = new int[BOARD_SIZE][BOARD_SIZE];
+        solution = new int[BOARD_SIZE][BOARD_SIZE]; // Initialize the solution board
         clearBoard();
         generatePuzzle();
     }
@@ -19,12 +21,18 @@ public class Sudoku {
         return board;
     }
 
-    public int[][] copyBoard(){
-    	int[][] copy = board;
-    	return copy;
+    public int[][] getSolution() {
+        return solution;
     }
-    
-    
+
+    public int[][] copyBoard() {
+        int[][] copy = new int[BOARD_SIZE][BOARD_SIZE];
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            System.arraycopy(board[i], 0, copy[i], 0, BOARD_SIZE);
+        }
+        return copy;
+    }
+
     public boolean isValidMove(int row, int col, int num) {
         for (int x = 0; x < BOARD_SIZE; x++) {
             if (board[row][x] == num || board[x][col] == num) {
@@ -89,7 +97,8 @@ public class Sudoku {
             }
         }
 
-        solve();
+        solve(); // Solve the board fully to generate the solution
+        copyBoardToSolution(); // Copy the fully solved board to the solution
 
         int cellsToRemove = BOARD_SIZE * BOARD_SIZE / 2;
         while (cellsToRemove > 0) {
@@ -98,6 +107,14 @@ public class Sudoku {
             if (board[row][col] != EMPTY_CELL) {
                 board[row][col] = EMPTY_CELL;
                 cellsToRemove--;
+            }
+        }
+    }
+
+    private void copyBoardToSolution() {
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                solution[i][j] = board[i][j]; // Copy solved board to solution array
             }
         }
     }
