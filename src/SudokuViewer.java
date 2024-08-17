@@ -1,17 +1,24 @@
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-
 import javafx.util.Duration;
-
 import javafx.geometry.Insets;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Label;
 
+/**
+ * This class represents the view in the MVC pattern for the Sudoku application.
+ * It manages the display of the Sudoku board, user interaction elements, and
+ * updates to the visual state of the game. It also handles the game timer and
+ * provides methods to interact with the board, such as updating the board,
+ * clearing inputs, and highlighting cells.
+ * 
+ * Author: Sophie Liu, Yuqing Peng, & Annabel Zhang
+ * Version: 1.0
+ */
 public class SudokuViewer {
 
     private VBox root;
@@ -19,7 +26,7 @@ public class SudokuViewer {
     private HBox buttonPanel;
     private TextField[][] cells;
     private TextField selectedCell;
-    private Label timerLabel; // Label to display the timer
+    private Label timerLabel;
     private Timeline timer;
     private int secondsElapsed;
 
@@ -36,8 +43,10 @@ public class SudokuViewer {
 
     private boolean isGameWon;
 
+    /**
+     * Constructs a SudokuViewer and initializes the UI components.
+     */
     public SudokuViewer() {
-
         // UI Setup
         gridPane_board = new GridPane();
         cells = new TextField[9][9];
@@ -48,14 +57,7 @@ public class SudokuViewer {
             for (int col = 0; col < 9; col++) {
                 cells[row][col] = new TextField();
                 cells[row][col].setPrefSize(50, 50);
-
-                cells[row][col].setStyle("-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: white;"); // Set
-                                                                                                                      // larger
-                                                                                                                      // font
-                                                                                                                      // size
-                                                                                                                      // and
-                                                                                                                      // center
-                                                                                                                      // alignment
+                cells[row][col].setStyle("-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: white;");
 
                 gridPane_board.add(cells[row][col], col, row);
 
@@ -109,7 +111,8 @@ public class SudokuViewer {
     }
 
     /**
-     * Sets up the timer using Timeline.
+     * Sets up the timer using Timeline. The timer updates every second and displays
+     * the elapsed time in a minutes:seconds format.
      */
     private void setupTimer() {
         secondsElapsed = 0;
@@ -123,7 +126,7 @@ public class SudokuViewer {
     }
 
     /**
-     * Starts the timer.
+     * Starts the timer from zero and begins counting the elapsed time.
      */
     public void startTimer() {
         secondsElapsed = 0;
@@ -131,62 +134,71 @@ public class SudokuViewer {
     }
 
     /**
-     * Stops the timer.
+     * Stops the timer, pausing the elapsed time count.
      */
     public void stopTimer() {
         timer.stop();
     }
 
     /**
-     * Returns the JavaFX elements
+     * Returns the root VBox containing all UI elements.
      * 
-     * @return Returns all the JavaFX elements
+     * @return the root VBox of the SudokuViewer.
      */
     public VBox getRoot() {
         return root;
     }
 
     /**
-     * Returns the board cells
+     * Returns the 2D array of cells that make up the Sudoku board.
      * 
-     * @return A 2D array of TextField[][] cells
+     * @return a 2D array of cells.
      */
     public TextField[][] getCells() {
         return cells;
     }
 
     /**
-     * @return The button for Solve
+     * Returns the solve button.
+     * 
+     * @return the button labeled "Solve".
      */
     public Button getSolveButton() {
         return solveButton;
     }
 
     /**
-     * @return The button for Clear
+     * Returns the clear button.
+     * 
+     * @return the button labeled "Clear".
      */
     public Button getClearButton() {
         return clearButton;
     }
 
     /**
-     * @return The button for Generate
+     * Returns the generate button.
+     * 
+     * @return the button labeled "Generate".
      */
     public Button getGenerateButton() {
         return generateButton;
     }
 
     /**
-     * @return The button for Check
+     * Returns the check button.
+     * 
+     * @return the button labeled "Check".
      */
     public Button getCheckButton() {
         return checkButton;
     }
 
     /**
-     * Adds a number to the selected cell based on the button clicked
+     * Adds a number to the currently selected cell on the board.
+     * The number is added if the cell is editable and currently empty.
      * 
-     * @param number The number of the button clicked
+     * @param number The number to add to the selected cell.
      */
     private void addNumberToSelectedCell(int number) {
         if (selectedCell != null && selectedCell.isEditable()) {
@@ -199,7 +211,7 @@ public class SudokuViewer {
     }
 
     /**
-     * Checks to grey out buttons when necessary
+     * Updates the state of the number buttons
      */
     private void updateButtonState() {
         // Reset number counts
@@ -231,15 +243,14 @@ public class SudokuViewer {
     }
 
     /**
-     * Updates the board with a new Sudoku board
+     * Updates the Sudoku board UI with the board state.
+     * The board is cleared and then filled with the new values
      * 
-     * @param board The generated Sudoku board
+     * @param board The 2D array representing the Sudoku board state.
      */
     public void updateBoard(int[][] board) {
-
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
-
                 TextField current = cells[row][col];
 
                 // Resetting board editability and style
@@ -255,7 +266,6 @@ public class SudokuViewer {
                     current.setText(Integer.toString(board[row][col]));
                     current.setEditable(false);
                     current.setStyle("-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: lightgray;");
-
                 }
             }
         }
@@ -263,7 +273,9 @@ public class SudokuViewer {
     }
 
     /**
-     * Clears only the user inputs, leaving the original puzzle intact.
+     * Clears only the user inputs
+     * 
+     * @param original The original Sudoku board with the starting numbers.
      */
     public void clearUserInputs(int[][] original) {
         for (int row = 0; row < 9; row++) {
@@ -278,40 +290,59 @@ public class SudokuViewer {
         updateButtonState();
     }
 
+    /**
+     * Returns whether the game is won by the user.
+     * 
+     * @return true if the game is won, false otherwise.
+     */
     public boolean isGameWon() {
         return isGameWon;
     }
+
     /**
      * Highlights incorrect and correct cells based on the provided solution.
+     * Correct cells are highlighted in green, while incorrect cells are highlighted
+     * in red.
+     * The method also checks if the user has won the game by comparing the current
+     * board with the solution.
+     * 
+     * @param board The 2D array representing the correct solution of the Sudoku
+     *              puzzle.
      */
     public void highlightCells(int[][] board) {
-        isGameWon = true;  // Assume the user has won until proven otherwise
+        isGameWon = true;
 
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
                 TextField current = cells[row][col];
-                if (current.isEditable()) { // Ensure we're only checking editable cells
+                // Ensure we're only checking editable cells
+                if (current.isEditable()) {
                     String text = current.getText().trim(); // Trim any whitespace
-                    if (!text.isEmpty()) { // Check if the cell is not empty
+                    if (!text.isEmpty()) {
                         try {
                             int value = Integer.parseInt(text);
                             if (board[row][col] != value) {
-                                current.setStyle("-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: #FF6666; ");
-                                isGameWon = false;  // If any cell is wrong, the user hasn't won
+                                current.setStyle(
+                                        "-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: #FF6666; ");
+                                // If any cell is wrong, the user hasn't won
+                                isGameWon = false;
                             } else {
-                                current.setStyle("-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: #66FF66; ");
+                                current.setStyle(
+                                        "-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: #66FF66; ");
                             }
                         } catch (NumberFormatException e) {
-                            current.setStyle("-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: #FF6666; ");
-                            isGameWon = false;  // If any input is not a number, the user hasn't won
+                            current.setStyle(
+                                    "-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: #FF6666; ");
+                            // If any input is not a number, the user hasn't won
+                            isGameWon = false;
                         }
                     } else {
                         current.setStyle("-fx-font-size: 24px; -fx-alignment: center; -fx-background-color: white;");
-                        isGameWon = false;  // If any cell is empty, the user hasn't won
+                        // If any cell is empty, the user hasn't won
+                        isGameWon = false;
                     }
                 }
             }
         }
     }
-
 }

@@ -9,7 +9,7 @@ import java.util.Random;
  * The Sudoku board is a 9x9 grid with subgrids of size 3x3.
  * 
  * Author: Sophie Liu, Yuqing Peng, & Annabel Zhang
- * <p>
+ * 
  * Version: 1.0
  */
 public class Sudoku {

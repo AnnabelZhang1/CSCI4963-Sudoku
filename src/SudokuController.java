@@ -7,11 +7,29 @@ import javafx.stage.Stage;
 
 import java.util.Optional;
 
+/**
+ * This class represents the controller in the MVC pattern for the Sudoku
+ * application.
+ * It manages the interaction between the user inputs, the Sudoku model, and the
+ * view.
+ * 
+ * Author: Sophie Liu, Yuqing Peng, & Annabel Zhang
+ * 
+ * Version: 1.0
+ */
 public class SudokuController {
 	private Sudoku model;
 	private SudokuViewer view;
 	private Stage primaryStage;
 
+	/**
+	 * Constructs a SudokuController with the specified model, view, and primary
+	 * stage.
+	 * 
+	 * @param model        The Sudoku model representing the game logic.
+	 * @param view         The Sudoku view that displays the game interface.
+	 * @param primaryStage The primary stage for this application.
+	 */
 	public SudokuController(Sudoku model, SudokuViewer view, Stage primaryStage) {
 		this.model = model;
 		this.view = view;
@@ -19,6 +37,12 @@ public class SudokuController {
 		initialize();
 	}
 
+	/**
+	 * Initializes the controller by setting up event handlers for the buttons in
+	 * the view.
+	 * It also starts the game timer and updates the view with the current board
+	 * state.
+	 */
 	private void initialize() {
 		view.updateBoard(model.getBoard());
 		view.startTimer(); // Start the timer when the game starts
@@ -38,6 +62,11 @@ public class SudokuController {
 		});
 	}
 
+	/**
+	 * Starts the Sudoku game by setting the scene and displaying the primary stage.
+	 * 
+	 * @param primaryStage The primary stage for this application.
+	 */
 	public void start(Stage primaryStage) {
 		Scene scene = new Scene(view.getRoot(), 600, 700);
 		primaryStage.setScene(scene);
@@ -45,10 +74,19 @@ public class SudokuController {
 		primaryStage.show();
 	}
 
+	/**
+	 * Returns the current scene being displayed.
+	 * 
+	 * @return the scene currently set in the primary stage.
+	 */
 	public Scene getScene() {
 		return primaryStage.getScene();
 	}
 
+	/**
+	 * Generates a new Sudoku puzzle, updates the view with the new puzzle,
+	 * and restarts the game timer.
+	 */
 	public void generateNewPuzzle() {
 		model.clearBoard();
 		model.generatePuzzle();
@@ -56,6 +94,12 @@ public class SudokuController {
 		view.startTimer(); // Restart the timer for the new puzzle
 	}
 
+	/**
+	 * Displays a confirmation dialog when the user attempts to solve the puzzle.
+	 * If the user confirms, the puzzle is solved, and the view is updated with the
+	 * solution.
+	 * The game timer is stopped once the puzzle is solved.
+	 */
 	private void showSolveConfirmation() {
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle("Solve Puzzle");
@@ -73,6 +117,10 @@ public class SudokuController {
 		}
 	}
 
+	/**
+	 * Displays a warning alert if the user tries to check the solution without
+	 * entering any numbers in the puzzle.
+	 */
 	private void showNoInputAlert() {
 		Alert alert = new Alert(AlertType.WARNING);
 		alert.setTitle("No Input");
@@ -81,6 +129,11 @@ public class SudokuController {
 		alert.showAndWait();
 	}
 
+	/**
+	 * Checks if the Sudoku board is empty (i.e., no user input).
+	 * 
+	 * @return true if the board is empty, false otherwise.
+	 */
 	private boolean isBoardEmpty() {
 		for (int row = 0; row < 9; row++) {
 			for (int col = 0; col < 9; col++) {
@@ -93,6 +146,10 @@ public class SudokuController {
 		return true;
 	}
 
+	/**
+	 * Displays the winning page if the user correctly solves the Sudoku puzzle.
+	 * Stops the game timer and shows the winning screen.
+	 */
 	private void showWinningPage() {
 		view.stopTimer(); // Stop the timer since the user has won
 		WinningPage winningPage = new WinningPage(this); // Pass the controller to the WinningPage
